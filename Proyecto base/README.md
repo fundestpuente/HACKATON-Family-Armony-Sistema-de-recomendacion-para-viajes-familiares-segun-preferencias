@@ -1,22 +1,24 @@
-#  SIC-FAMILY-HARMONY-AI
+
 
 > **Sistema Inteligente de Recomendación para Vacaciones Familiares**
 
-Este proyecto unifica un **Backend analítico (FastAPI + XGBoost)** con un **Frontend interactivo (Streamlit)**.
+Este proyecto unifica un **Backend analítico (FastAPI + XGBoost)** con un **Frontend interactivo (Streamlit)** para revolucionar la planificación de viajes grupales.
 
-La herramienta fue diseñada para resolver la complejidad de los viajes grupales: permite al usuario **ingresar el número exacto de participantes** y definir las **características específicas** que buscan (cultura, recreación, descanso, etc.). A partir de estos inputs, el sistema utiliza Inteligencia Artificial para recomendar los destinos que maximizan la satisfacción colectiva.
+La herramienta va más allá de un simple buscador; actúa como un "Árbitro Inteligente" diseñado para resolver la complejidad de los viajes en grupo. Ofrece **tres motores de búsqueda independientes** para adaptarse a la necesidad del momento: consenso por gustos (IA), logística por cercanía (Geolocalización) o búsqueda directa por tipo de lugar. Además, integra visualización geoespacial en todas sus respuestas para facilitar la toma de decisiones.
 
 ---
 
-##  Descripción General
+##  Características Principales
 
-El sistema opera bajo una arquitectura cliente-servidor donde el usuario configura la experiencia y el modelo predice el éxito del destino.
+El sistema opera bajo una arquitectura cliente-servidor modular.
 
-### Características Principales:
-* **Gestión Dinámica de Grupos**: Ingreso de *N* cantidad de participantes con roles específicos (Padres, Hijos, Abuelos).
-* **Perfilado de Preferencias**: Definición de gustos en 6 categorías clave (Cultural, Recreación, Alojamiento, Gastronomía, Entretenimiento, Servicios).
-* **Motor de Recomendación AI**: Uso de **XGBoost** para procesar las características ingresadas y predecir el destino óptimo.
-* **Analítica Visual**: Gráficos de radar y tablas comparativas para entender la "armonía" del grupo.
+* ** Gestión Dinámica de Grupos:** Ingreso flexible de *N* cantidad de participantes con roles específicos (Padres, Hijos, Abuelos).
+* ** Motor de Recomendación Híbrido (3 Modos):**
+    1.  **Por Preferencias (AI):** Usa **XGBoost** para cruzar los perfiles de gusto (Cultural, Recreación, etc.) y predecir el destino que maximiza la felicidad colectiva.
+    2.  **Por Ubicación:** Algoritmo de proximidad para encontrar destinos cercanos al hogar del usuario.
+    3.  **Por Tipo de Lugar:** Filtrado directo para búsquedas específicas (ej. "Solo Parques Nacionales").
+* ** Mapas Interactivos:** Implementación de **Folium** para visualizar la ubicación exacta y rutas de cada recomendación en cualquiera de los tres modos.
+* ** Dashboard Analítico (Modo Preferencias):** Panel avanzado con gráficos de radar y estadísticas de compatibilidad que justifican matemáticamente por qué un destino es el ideal para el grupo.
 
 ---
 
@@ -24,41 +26,43 @@ El sistema opera bajo una arquitectura cliente-servidor donde el usuario configu
 
 ```text
 SIC-FAMILY-ARMONY-AI/
-├── api/                          #  Backend (Lógica y Modelo AI)
+├── api/                          # Backend (Lógica y Modelo AI)
 │   ├── app/                      # Código fuente de la API
 │   └── .env                      # Configuración del servidor
-├── data/                         #  Datos procesados y análisis
+├── data/                         # Datos procesados y análisis
 │   ├── AnalisisExploratorio.ipynb
 │   ├── datos_sintetico.csv
 │   └── nuevos_viajes.csv
-├── datasets_base/                #  Fuentes de datos originales
+├── datasets_base/                # Fuentes de datos originales
 │   ├── atractivos_tur.csv
 │   └── google_review_ratings.csv
-├── frontend/                     #  Frontend (Interfaz de Usuario)
+├── frontend/                     # Frontend (Interfaz de Usuario)
 │   ├── .streamlit/               # Configuración de estilos
-│   ├── pagina/                   # Páginas: Familia, Recomendaciones, Análisis
-│   ├── utils/                    # Funciones auxiliares
-│   ├── app.py                    #  Punto de entrada de Streamlit
+│   ├── pagina/                   # Módulos: Familia, Recomendaciones (3 tabs), Análisis
+│   ├── utils/                    # Funciones auxiliares y renderizado de mapas
+│   ├── app.py                    # Punto de entrada de Streamlit
 │   └── .env                      # Configuración del cliente
-├── generar_data_sintetica_...py  # Script para generación de datos
-├── union_y_preprocesamiento.py   # Script ETL de limpieza de datos
+├── generar_data_sintetica_...py  # Script para generación de datos de entrenamiento
+├── union_y_preprocesamiento.py   # Script ETL de limpieza y unión de datos
 └── .gitignore
-````
 
------
+```
+
+---
 
 ##  Guía de Instalación y Ejecución
 
 Para levantar el sistema completo, necesitarás dos terminales: una para el cerebro (API) y otra para la interfaz (Frontend).
 
-### 1\. Clonar el Repositorio
+### 1. Clonar el Repositorio
 
 ```bash
-git clone [https://github.com/fundestpuente/SIC-Family-Armony-Ai.git](https://github.com/fundestpuente/SIC-Family-Armony-Ai.git)
-cd SIC-FAMILY-ARMONY-AI
+git clone [https://github.com/fundestpuente/HACKATON-Family-Armony-Sistema-de-recomendacion-para-viajes-familiares-segun-preferencias.git](https://github.com/fundestpuente/HACKATON-Family-Armony-Sistema-de-recomendacion-para-viajes-familiares-segun-preferencias.git)
+cd HACKATON-Family-Armony...
+
 ```
 
-### 2\. Configurar el Backend (Terminal A)
+### 2. Configurar el Backend (Terminal A)
 
 ```bash
 # Navegar a la carpeta del servidor
@@ -74,17 +78,18 @@ echo "PORT=8000" >> .env
 
 # Levantar el servidor
 uvicorn app.main:app --reload --port 8000
+
 ```
 
->  **Estado:** La API estará escuchando en `http://localhost:8000`
+> **Estado:** La API estará escuchando en `http://localhost:8000` y la documentación en `/docs`.
 
-### 3\. Configurar el Frontend (Terminal B)
+### 3. Configurar el Frontend (Terminal B)
 
 ```bash
 # Navegar a la carpeta de la interfaz
 cd frontend
 
-# Instalar librerías gráficas
+# Instalar librerías gráficas y de mapas
 pip install streamlit requests python-dotenv plotly pandas numpy streamlit-option-menu streamlit-folium folium
 
 # Configurar conexión con el backend
@@ -96,32 +101,32 @@ streamlit run app.py
 
 # Personalizado (puerto específico)
 streamlit run app.py --server.port 8501 --server.address localhost
+
 ```
 
 > **Estado:** La Web App se abrirá en `http://localhost:8501`
 
------
+---
 
 ##  Flujo de Uso
 
-1.  **Página "Familia" (Input):**
+### 1. Configuración (Sidebar & Home)
 
-      * El usuario indica cuántas personas viajan.
-      * Se registran los perfiles y se califican (1-5 estrellas) las características que buscan (ej. *Alta Gastronomía*, *Bajo Entretenimiento*).
+El usuario define los parámetros del grupo familiar.
 
-2.  **Página "Recomendaciones" (Procesamiento):**
+### 2. Módulo de Recomendaciones (Pestañas Independientes)
 
-      * Se solicita al backend el **Top 3 o 5** destinos.
-      * El modelo XGBoost cruza las preferencias del grupo con la base de datos de destinos.
+El sistema ofrece flexibilidad total mediante tres pestañas:
 
-3.  **Página "Análisis" (Output):**
+* **  Por Preferencias:** El usuario califica 6 categorías. El modelo AI retorna el Top Destinos optimizados para el grupo, mostrados en un mapa interactivo.
+* ** Por Ubicación:** El usuario ingresa su ciudad. El sistema muestra los atractivos más cercanos en el mapa.
+* ** Por Tipo:** El usuario selecciona una categoría específica. El sistema filtra y geolocaliza las opciones.
 
-      * Visualización de gráficos de radar para ver la compatibilidad entre los miembros del grupo y el destino elegido.
+### 3. Módulo de Análisis (Dashboard)
 
------
+Exclusivo para la búsqueda por **Preferencias**. Al seleccionar un destino recomendado por la IA:
 
-## Mejoras Futuras
+* Visualización de **Gráficos de Radar** comparando el perfil del destino vs. el perfil de la familia.
+* Métricas de **Compatibilidad (%)** para transparencia en la decisión.
 
-  - [ ] Integración con Google Maps API para visualización geográfica.
-  - [ ] Exportación de itinerarios a PDF.
-  - [ ] Pestaña de análisis.
+
