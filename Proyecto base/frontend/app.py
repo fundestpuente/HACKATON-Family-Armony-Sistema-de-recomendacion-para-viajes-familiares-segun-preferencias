@@ -5,7 +5,7 @@ from utils.api_client import APIClient
 # Configuración de la página
 st.set_page_config(**APP_CONFIG)
 
-# ========== ESTADO INICIAL ==========
+# ESTADO INICIAL 
 if 'family_members' not in st.session_state:
     st.session_state.family_members = []
 if 'recommendations' not in st.session_state:
@@ -216,26 +216,10 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ========== SIDEBAR ==========
+#  SIDEBAR 
 def render_sidebar():
     with st.sidebar:
         st.markdown("<h1><i class='fas fa-umbrella-beach' style='margin-right: 10px; color: #4361EE;'></i>Family Harmony</h1>", unsafe_allow_html=True)
-        
-        # Estado API
-        if APIClient.check_api_health():
-            st.markdown("""
-                <div class="api-status api-connected">
-                    <i class='fas fa-check-circle'></i>API Conectada
-                </div>
-            """, unsafe_allow_html=True)
-        else:
-            st.markdown("""
-                <div class="api-status api-disconnected">
-                    <i class='fas fa-times-circle'></i>API Desconectada
-                </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("---")
         
         # Navegación 
         st.markdown("<h3><i class='fas fa-map-marker-alt' style='margin-right: 8px;'></i>Navegación</h3>", unsafe_allow_html=True)
@@ -288,7 +272,7 @@ def render_sidebar():
             """, unsafe_allow_html=True)
             st.rerun()
 
-# ========== APLICACIÓN PRINCIPAL ==========
+# APLICACIÓN PRINCIPAL
 def main():
     # Sidebar
     render_sidebar()
