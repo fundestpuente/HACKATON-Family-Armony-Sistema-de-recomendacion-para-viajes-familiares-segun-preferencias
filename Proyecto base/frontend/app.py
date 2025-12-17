@@ -243,7 +243,8 @@ def render_sidebar():
         paginas = [
             ("Familia", "familia", "fas fa-users"),
             ("Recomendaciones", "recomendaciones", "fas fa-map-marked-alt"),
-            ("Análisis", "analisis", "fas fa-chart-bar")
+            ("Análisis", "analisis", "fas fa-chart-bar"),
+            ("Mapa interactivo", "mapa", "fas fa-map")
         ]
         
         for display_text, page_id, icon_class in paginas:
@@ -259,7 +260,7 @@ def render_sidebar():
         st.markdown("---")
         
         # Info familia
-        st.markdown("<h3><i class='fas fa-users' style='margin-right: 8px;'></i>Tu Familia</h3>", unsafe_allow_html=True)
+        st.markdown("<h3><i class='fas fa-users' style='margin-right: 8px;'></i>Tu familia</h3>", unsafe_allow_html=True)
         if st.session_state.family_members:
             for member in st.session_state.family_members:
                 pref_count = sum(len(cat) for cat in member.get('preferencias', {}).values())
@@ -296,6 +297,7 @@ def main():
     from pagina.familia_page import render_familia_page
     from pagina.recomendaciones_page import render_recomendaciones_page
     from pagina.analisis_page import render_analisis_page
+    from pagina.mapa_interactivo_page import render_mapa_google_page
     
     # Contenido principal
     if st.session_state.current_page == "familia":
@@ -304,6 +306,9 @@ def main():
         render_recomendaciones_page()
     elif st.session_state.current_page == "analisis":
         render_analisis_page()
+    elif st.session_state.current_page == "mapa":
+        render_mapa_google_page()
+        
     
     # Footer
     st.markdown("---")
