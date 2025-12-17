@@ -12,13 +12,13 @@ La herramienta va más allá de un simple buscador; actúa como un "Árbitro Int
 
 El sistema opera bajo una arquitectura cliente-servidor modular.
 
-* ** Gestión Dinámica de Grupos:** Ingreso flexible de *N* cantidad de participantes con roles específicos (Padres, Hijos, Abuelos).
-* ** Motor de Recomendación Híbrido (3 Modos):**
+* **Gestión Dinámica de Grupos:** Ingreso flexible de *N* cantidad de participantes con roles específicos (Padres, Hijos, Abuelos).
+* **Motor de Recomendación Híbrido (3 Modos):**
     1.  **Por Preferencias (AI):** Usa **XGBoost** para cruzar los perfiles de gusto (Cultural, Recreación, etc.) y predecir el destino que maximiza la felicidad colectiva.
     2.  **Por Ubicación:** Algoritmo de proximidad para encontrar destinos cercanos al hogar del usuario.
     3.  **Por Tipo de Lugar:** Filtrado directo para búsquedas específicas (ej. "Solo Parques Nacionales").
-* ** Mapas Interactivos:** Implementación de **Folium** para visualizar la ubicación exacta y rutas de cada recomendación en cualquiera de los tres modos.
-* ** Dashboard Analítico (Modo Preferencias):** Panel avanzado con gráficos de radar y estadísticas de compatibilidad que justifican matemáticamente por qué un destino es el ideal para el grupo.
+* **Mapas Interactivos:** Implementación de **Folium** para visualizar la ubicación exacta y rutas de cada recomendación en cualquiera de los tres modos.
+* **Dashboard Analítico (Modo Preferencias):** Panel avanzado con gráficos de radar y estadísticas de compatibilidad que justifican matemáticamente por qué un destino es el ideal para el grupo.
 
 ---
 
@@ -118,9 +118,9 @@ El usuario define los parámetros del grupo familiar.
 
 El sistema ofrece flexibilidad total mediante tres pestañas:
 
-* **  Por Preferencias:** El usuario califica 6 categorías. El modelo AI retorna el Top Destinos optimizados para el grupo, mostrados en un mapa interactivo.
-* ** Por Ubicación:** El usuario ingresa su ciudad. El sistema muestra los atractivos más cercanos en el mapa.
-* ** Por Tipo:** El usuario selecciona una categoría específica. El sistema filtra y geolocaliza las opciones.
+* **Por Preferencias:** El usuario califica 6 categorías. El modelo AI retorna el Top Destinos optimizados para el grupo, mostrados en un mapa interactivo.
+* **Por Ubicación:** El usuario ingresa su ciudad. El sistema muestra los atractivos más cercanos en el mapa.
+* **Por Tipo:** El usuario selecciona una categoría específica. El sistema filtra y geolocaliza las opciones.
 
 ### 3. Módulo de Análisis (Dashboard)
 
