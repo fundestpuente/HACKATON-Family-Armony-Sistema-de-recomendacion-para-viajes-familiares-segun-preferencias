@@ -5,7 +5,7 @@ from .routes import family
 
 # Crear la aplicación FastAPI
 app = FastAPI(
-    title="Family Armony AI: Recomendador de Vacaciones Familiares",
+    title="Family Harmony AI: Recomendador de Vacaciones Familiares",
     description="API para recomendar destinos óptimos basados en preferencias familiares usando XGBoost.",
     version="0.2.0"
 )
