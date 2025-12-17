@@ -231,7 +231,7 @@ else:
 # =======================================================
 # Guardar dataset combinado
 # =======================================================
-output_file = "datos_sintetico_completo.csv"
+output_file = "datos_sintetico.csv"
 df_final.to_csv(output_file, sep="|", index=False)
 print(f"\nDataset combinado guardado en: {output_file}")
 
