@@ -7,40 +7,25 @@ class APIClient:
     """Cliente para interactuar con la API de Family Harmony"""
     
     @staticmethod
-    def get_recommendations(family_data: Dict, top_k: int = 3) -> Optional[Dict]:
-        """
-        Obtiene recomendaciones de destinos para una familia
-        
-        Args:
-            family_data: Diccionario con la estructura de la familia
-            top_k: Número de recomendaciones a retornar
-            
-        Returns:
-            Dict con las recomendaciones o None si hay error
-        """
-        try:
-            # URL 
-            url = ENDPOINTS["recommend"]
-            response = requests.post(
-                url,
-                json=family_data,
-                params={"top_k": top_k},  
+    def get_recommendations(family_data, top_k):
+        payload = {
+            "family": family_data,
+            "top_k": top_k
+        }
+
+        response = requests.post(
+            ENDPOINTS["recommend"],
+            params={"top_k": top_k},
+            json=payload,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            raise Exception(
+                f"Error HTTP {response.status_code}: {response.text}"
             )
-            response.raise_for_status()
-            return response.json()
-            
-        except requests.exceptions.ConnectionError:
-            st.error("No se pudo conectar con el servidor. Verifica que la API esté corriendo en http://localhost:8000")
-            return None
-        except requests.exceptions.Timeout:
-            st.error("La solicitud tardó demasiado tiempo. Intenta nuevamente.")
-            return None
-        except requests.exceptions.HTTPError as e:
-            st.error(f"Error HTTP {e.response.status_code}: {e.response.text[:100]}...")
-            return None
-        except Exception as e:
-            st.error(f"Error inesperado: {str(e)}")
-            return None
+
+        return response.json()
     
     @staticmethod
     def check_api_health() -> bool:
