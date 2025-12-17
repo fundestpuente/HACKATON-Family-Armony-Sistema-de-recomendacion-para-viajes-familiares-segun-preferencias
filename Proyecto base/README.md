@@ -1,6 +1,6 @@
 
 
-> **Sistema Inteligente de Recomendación para Vacaciones Familiares**
+> **Family Harmony AI: Sistema Inteligente de Recomendación para Vacaciones Familiares**
 
 Este proyecto unifica un **Backend analítico (FastAPI + XGBoost)** con un **Frontend interactivo (Streamlit)** para revolucionar la planificación de viajes grupales.
 
@@ -38,7 +38,7 @@ SIC-FAMILY-ARMONY-AI/
 │   └── google_review_ratings.csv
 ├── frontend/                     # Frontend (Interfaz de Usuario)
 │   ├── .streamlit/               # Configuración de estilos
-│   ├── pagina/                   # Módulos: Familia, Recomendaciones (3 tabs), Análisis
+│   ├── pagina/                   # Módulos
 │   ├── utils/                    # Funciones auxiliares y renderizado de mapas
 │   ├── app.py                    # Punto de entrada de Streamlit
 │   └── .env                      # Configuración del cliente
@@ -110,7 +110,7 @@ streamlit run app.py --server.port 8501 --server.address localhost
 
 ##  Flujo de Uso
 
-### 1. Configuración (Sidebar & Home)
+### 1. Configuración 
 
 El usuario define los parámetros del grupo familiar.
 
@@ -119,7 +119,7 @@ El usuario define los parámetros del grupo familiar.
 El sistema ofrece flexibilidad total mediante tres pestañas:
 
 * **Por Preferencias:** El usuario califica 6 categorías. El modelo AI retorna el Top Destinos optimizados para el grupo, mostrados en un mapa interactivo.
-* **Por Ubicación:** El usuario ingresa su ciudad. El sistema muestra los atractivos más cercanos en el mapa.
+* **Por Ubicación:** El usuario puede tanto ingresa su ciudad manualmente como el sistema reconoce automaticamente su ubicación actual si el usuario lo desea asi. El sistema muestra los atractivos más cercanos en el mapa.
 * **Por Tipo:** El usuario selecciona una categoría específica. El sistema filtra y geolocaliza las opciones.
 
 ### 3. Módulo de Análisis (Dashboard)
