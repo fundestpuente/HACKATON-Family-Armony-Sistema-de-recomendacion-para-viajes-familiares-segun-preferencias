@@ -1,4 +1,4 @@
-#  SIC-FAMILY-ARMONY-AI
+#  SIC-FAMILY-HARMONY-AI
 
 > **Sistema Inteligente de Recomendación para Vacaciones Familiares**
 
