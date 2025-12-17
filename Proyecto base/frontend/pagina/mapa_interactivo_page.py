@@ -130,11 +130,10 @@ def get_location_component():
 def render_mapa_google_page():
     """Mapa interactivo con GPS automático"""
 
-    st.title("🗺️ Mapa interactivo de destinos")
+    st.title(" Mapa interactivo de destinos")
 
     gps_text = "GPS" if st.session_state.get("gps_obtenido", False) else "Manual"
 
-    # ================= SESSION STATE =================
     if 'recomendaciones_mapa' not in st.session_state:
         st.session_state.recomendaciones_mapa = []
 
@@ -185,179 +184,11 @@ def render_mapa_google_page():
             except (ValueError, TypeError):
                 pass
 
-    # ================= SIDEBAR =================
-    st.sidebar.header("⚙️ Configuración del mapa")
-
-    modo = st.sidebar.radio(
-        "Modo de búsqueda:",
-        ["📍 Mi ubicación", "🔍 Por tipo", "🎯 Más cercano"],
-        key="modo_mapa"
-    )
-
-    st.sidebar.markdown("---")
-
-    # ================= MODO: UBICACIÓN =================
-    if modo == "📍 Mi ubicación":
-        st.sidebar.subheader("Tu ubicación")
-
-        # Botón para obtener GPS
-        if st.sidebar.button("Obtener mi ubicación GPS", type="primary", use_container_width=True):
-            st.session_state.mostrar_gps_widget = True
-            st.rerun()
-
-        # Mostrar widget de GPS si fue activado
-        if st.session_state.mostrar_gps_widget:
-            st.sidebar.markdown("---")
-            location_data = html(get_location_component(), height=180)
-            
-            # Procesar datos si llegan por postMessage
-            if location_data is not None and isinstance(location_data, dict):
-                if location_data.get('success'):
-                    st.session_state.ubicacion_actual_mapa = {
-                        "lat": location_data['lat'],
-                        "lon": location_data['lon'],
-                        "nombre": "Mi ubicación GPS"
-                    }
-                    st.session_state.gps_obtenido = True
-                    st.session_state.mostrar_gps_widget = False
-                    st.session_state.last_gps_timestamp = location_data.get('timestamp')
-                    st.sidebar.success(f"GPS actualizado (±{location_data.get('accuracy', 0):.0f}m)")
-                    st.rerun()
-                elif not location_data.get('success'):
-                    st.sidebar.error(f"{location_data.get('error', 'Error desconocido')}")
-                    st.session_state.mostrar_gps_widget = False
-            
-            # Botón para cerrar el widget si tarda mucho
-            if st.sidebar.button("Cancelar", type="secondary", use_container_width=True):
-                st.session_state.mostrar_gps_widget = False
-                st.rerun()
-
-        st.sidebar.markdown("---")
-        st.sidebar.markdown("**O ingresa manualmente:**")
-
-        col1, col2 = st.sidebar.columns(2)
-        with col1:
-            lat_actual = st.number_input(
-                "Latitud", 
-                value=st.session_state.ubicacion_actual_mapa["lat"], 
-                format="%.6f",
-                key="lat_input"
-            )
-        with col2:
-            lon_actual = st.number_input(
-                "Longitud", 
-                value=st.session_state.ubicacion_actual_mapa["lon"], 
-                format="%.6f",
-                key="lon_input"
-            )
-
-        nombre = st.sidebar.text_input("Nombre", st.session_state.ubicacion_actual_mapa["nombre"])
-
-        if st.sidebar.button("Actualizar ubicación manual", type="secondary", use_container_width=True):
-            st.session_state.ubicacion_actual_mapa = {
-                "lat": lat_actual,
-                "lon": lon_actual,
-                "nombre": nombre
-            }
-            st.session_state.gps_obtenido = False
-            st.sidebar.success("Ubicación actualizada")
-            st.rerun()
-
-        # Mostrar ubicación actual
-        st.sidebar.markdown("---")
-        
-        st.sidebar.info(f"""
-        **Ubicación actual:**  
-        📍 {st.session_state.ubicacion_actual_mapa['nombre']}  
-        Lat: {st.session_state.ubicacion_actual_mapa['lat']:.6f}  
-        Lon: {st.session_state.ubicacion_actual_mapa['lon']:.6f}  
-        {gps_text}
-        """)
-
-    # ================= POR TIPO =================
-    elif modo == "🔍 Por tipo":
-        st.sidebar.subheader("Buscar por tipo")
-
-        tipo_destino = st.sidebar.selectbox(
-            "Tipo de destino",
-            [
-                "playas", "museos", "parques", "restaurantes",
-                "hoteles", "centros_comerciales",
-                "teatros", "iglesias", "zoologicos",
-                "bares_pubs", "monumentos"
-            ]
-        )
-
-        provincia = st.sidebar.selectbox(
-            "Provincia",
-            ["Todas", "SANTA ELENA", "PICHINCHA", "GUAYAS", "MANABÍ", "AZUAY"]
-        )
-
-        cantidad = st.sidebar.slider("Cantidad", 5, 30, 10)
-
-        if st.sidebar.button("🔍 Buscar", type="primary"):
-            try:
-                params = {"tipo": tipo_destino, "top_k": cantidad}
-                if provincia != "Todas":
-                    params["provincia"] = provincia
-
-                with st.spinner("Buscando destinos..."):
-                    r = requests.get(
-                        f"{API_URL}/api/family/destinos_por_tipo",
-                        params=params,
-                        timeout=30
-                    )
-
-                if r.status_code == 200:
-                    st.session_state.recomendaciones_mapa = r.json()["resultados"]
-                    st.sidebar.success(f"{len(st.session_state.recomendaciones_mapa)} destinos encontrados")
-                else:
-                    st.sidebar.error("Error en el API")
-            except Exception as e:
-                st.sidebar.error(f"{str(e)}")
-
-    # ================= MÁS CERCANO =================
-    elif modo == "🎯 Más cercano":
-        st.sidebar.subheader("Destino más cercano")
-
-        tipo = st.sidebar.selectbox(
-            "Tipo",
-            ["Cualquiera", "playas", "museos", "parques", "restaurantes", "hoteles"]
-        )
-
-        min_score = st.sidebar.slider("Score mínimo", 0.0, 5.0, 2.0, 0.1)
-
-        if st.sidebar.button("🔍 Buscar cercano", type="primary"):
-            try:
-                params = {
-                    "lat": st.session_state.ubicacion_actual_mapa["lat"],
-                    "lon": st.session_state.ubicacion_actual_mapa["lon"],
-                    "min_score": min_score
-                }
-                if tipo != "Cualquiera":
-                    params["tipo"] = tipo
-
-                with st.spinner("Buscando el destino más cercano..."):
-                    r = requests.get(
-                        f"{API_URL}/api/family/destino_mas_cercano",
-                        params=params,
-                        timeout=30
-                    )
-
-                if r.status_code == 200:
-                    st.session_state.destino_cercano_mapa = r.json()
-                    st.sidebar.success("Destino encontrado")
-                else:
-                    st.sidebar.error("Error en el API")
-            except Exception as e:
-                st.sidebar.error(f"{str(e)}")
-
-    # ================= MAPA =================
-    col_mapa, col_stats = st.columns([3, 1])
+    # LAYOUT PRINCIPAL: MAPA + CONFIG 
+    col_mapa, col_config = st.columns([2.5, 1])
 
     with col_mapa:
-
-        # --------- DETERMINAR CENTRO ----------
+        #  DETERMINAR CENTRO 
         if st.session_state.destino_cercano_mapa:
             center = [
                 st.session_state.destino_cercano_mapa["lat"],
@@ -378,11 +209,11 @@ def render_mapa_google_page():
             ]
             zoom = 7
 
-        # --------- CREAR MAPA ----------
+        # CREAR MAPA 
         m = folium.Map(location=center, zoom_start=zoom, tiles="OpenStreetMap")
         plugins.Fullscreen().add_to(m)
 
-        # --------- UBICACIÓN ACTUAL ----------
+        # UBICACIÓN ACTUAL
         icon_color = "green" if st.session_state.gps_obtenido else "blue"
         icon_symbol = "satellite" if st.session_state.gps_obtenido else "home"
         
@@ -392,8 +223,8 @@ def render_mapa_google_page():
                 st.session_state.ubicacion_actual_mapa["lon"]
             ],
             popup=f"""
-            <b>📍 {st.session_state.ubicacion_actual_mapa['nombre']}</b><br>
-            🌐 {st.session_state.ubicacion_actual_mapa['lat']:.6f}, {st.session_state.ubicacion_actual_mapa['lon']:.6f}<br>
+            <b> {st.session_state.ubicacion_actual_mapa['nombre']}</b><br>
+             {st.session_state.ubicacion_actual_mapa['lat']:.6f}, {st.session_state.ubicacion_actual_mapa['lon']:.6f}<br>
              Ubicación {gps_text}
             """,
             tooltip="Tu ubicación actual",
@@ -407,12 +238,12 @@ def render_mapa_google_page():
             folium.Marker(
                 location=[dest["lat"], dest["lon"]],
                 popup=f"""
-                <b>🎯 {dest['nombre']}</b><br>
-                📍 {dest['provincia']}<br>
+                <b> {dest['nombre']}</b><br>
+                 {dest['provincia']}<br>
                 ⭐ {dest['score']:.2f}/5<br>
                 📏 {dest['distancia_km']} km
                 """,
-                tooltip=f"🎯 {dest['nombre']}",
+                tooltip=f" {dest['nombre']}",
                 icon=folium.Icon(color="red", icon="star", prefix="fa")
             ).add_to(m)
 
@@ -424,19 +255,183 @@ def render_mapa_google_page():
                 location=[rec["lat"], rec["lon"]],
                 popup=f"""
                 <b>#{idx} {rec['nombre']}</b><br>
-                📍 {rec['provincia']}<br>
-                ⭐ {score:.2f}/5
+                 {rec['provincia']}<br>
+                 {score:.2f}/5
                 """,
                 tooltip=f"#{idx} {rec['nombre']}",
                 icon=folium.Icon(color="orange", icon="map-marker", prefix="fa")
             ).add_to(m)
 
-        st_folium(m, height=600, use_container_width=True)
+        st_folium(m, height=650, use_container_width=True)
 
-    with col_stats:
-        st.subheader("Estadísticas")
+    # ================= PANEL DERECHO: CONFIGURACIÓN =================
+    with col_config:
+        st.markdown("###  Configuración")
+        
+        modo = st.radio(
+            "Modo de búsqueda:",
+            [" Mi ubicación", " Por tipo", " Más cercano"],
+            key="modo_mapa"
+        )
 
-        # ========= CASO 1: DESTINO MÁS CERCANO =========
+        st.markdown("---")
+
+        # ================= MODO: UBICACIÓN =================
+        if modo == " Mi ubicación":
+            st.markdown("**Tu ubicación**")
+
+            # Botón para obtener GPS
+            if st.button(" Obtener GPS", type="primary", use_container_width=True):
+                st.session_state.mostrar_gps_widget = True
+                st.rerun()
+
+            # Mostrar widget de GPS si fue activado
+            if st.session_state.mostrar_gps_widget:
+                location_data = html(get_location_component(), height=160)
+                
+                # Procesar datos si llegan por postMessage
+                if location_data is not None and isinstance(location_data, dict):
+                    if location_data.get('success'):
+                        st.session_state.ubicacion_actual_mapa = {
+                            "lat": location_data['lat'],
+                            "lon": location_data['lon'],
+                            "nombre": "Mi ubicación GPS"
+                        }
+                        st.session_state.gps_obtenido = True
+                        st.session_state.mostrar_gps_widget = False
+                        st.session_state.last_gps_timestamp = location_data.get('timestamp')
+                        st.success(f"GPS actualizado (±{location_data.get('accuracy', 0):.0f}m)")
+                        st.rerun()
+                    elif not location_data.get('success'):
+                        st.error(f"{location_data.get('error', 'Error desconocido')}")
+                        st.session_state.mostrar_gps_widget = False
+                
+                # Botón para cerrar el widget si tarda mucho
+                if st.button(" Cancelar", type="secondary", use_container_width=True):
+                    st.session_state.mostrar_gps_widget = False
+                    st.rerun()
+
+            st.markdown("**O ingresa manualmente:**")
+
+            lat_actual = st.number_input(
+                "Latitud", 
+                value=st.session_state.ubicacion_actual_mapa["lat"], 
+                format="%.6f",
+                key="lat_input"
+            )
+            
+            lon_actual = st.number_input(
+                "Longitud", 
+                value=st.session_state.ubicacion_actual_mapa["lon"], 
+                format="%.6f",
+                key="lon_input"
+            )
+
+            nombre = st.text_input("Nombre", st.session_state.ubicacion_actual_mapa["nombre"])
+
+            if st.button(" Actualizar", type="secondary", use_container_width=True):
+                st.session_state.ubicacion_actual_mapa = {
+                    "lat": lat_actual,
+                    "lon": lon_actual,
+                    "nombre": nombre
+                }
+                st.session_state.gps_obtenido = False
+                st.success("Ubicación actualizada")
+                st.rerun()
+
+            # Mostrar ubicación actual
+            st.markdown("---")
+            st.info(f"""
+            **Ubicación actual:**  
+             {st.session_state.ubicacion_actual_mapa['nombre']}  
+            Lat: {st.session_state.ubicacion_actual_mapa['lat']:.6f}  
+            Lon: {st.session_state.ubicacion_actual_mapa['lon']:.6f}  
+             {gps_text}
+            """)
+
+        # POR TIPO 
+        elif modo == " Por tipo":
+            st.markdown("**Buscar por tipo**")
+
+            tipo_destino = st.selectbox(
+                "Tipo de destino",
+                [
+                    "playas", "museos", "parques", "restaurantes",
+                    "hoteles", "centros_comerciales",
+                    "teatros", "iglesias", "zoologicos",
+                    "bares_pubs", "monumentos"
+                ]
+            )
+
+            provincia = st.selectbox(
+                "Provincia",
+                ["Todas", "SANTA ELENA", "PICHINCHA", "GUAYAS", "MANABÍ", "AZUAY"]
+            )
+
+            cantidad = st.slider("Cantidad", 5, 30, 10)
+
+            if st.button("🔍 Buscar", type="primary", use_container_width=True):
+                try:
+                    params = {"tipo": tipo_destino, "top_k": cantidad}
+                    if provincia != "Todas":
+                        params["provincia"] = provincia
+
+                    with st.spinner("Buscando..."):
+                        r = requests.get(
+                            f"{API_URL}/api/family/destinos_por_tipo",
+                            params=params,
+                            timeout=30
+                        )
+
+                    if r.status_code == 200:
+                        st.session_state.recomendaciones_mapa = r.json()["resultados"]
+                        st.success(f"{len(st.session_state.recomendaciones_mapa)} destinos encontrados")
+                    else:
+                        st.error("Error en el API")
+                except Exception as e:
+                    st.error(f"{str(e)}")
+
+        # ================= MÁS CERCANO =================
+        elif modo == " Más cercano":
+            st.markdown("**Destino más cercano**")
+
+            tipo = st.selectbox(
+                "Tipo",
+                ["Cualquiera", "playas", "museos", "parques", "restaurantes", "hoteles"]
+            )
+
+            min_score = st.slider("Score mínimo", 0.0, 5.0, 2.0, 0.1)
+
+            if st.button(" Buscar cercano", type="primary", use_container_width=True):
+                try:
+                    params = {
+                        "lat": st.session_state.ubicacion_actual_mapa["lat"],
+                        "lon": st.session_state.ubicacion_actual_mapa["lon"],
+                        "min_score": min_score
+                    }
+                    if tipo != "Cualquiera":
+                        params["tipo"] = tipo
+
+                    with st.spinner("Buscando..."):
+                        r = requests.get(
+                            f"{API_URL}/api/family/destino_mas_cercano",
+                            params=params,
+                            timeout=30
+                        )
+
+                    if r.status_code == 200:
+                        st.session_state.destino_cercano_mapa = r.json()
+                        st.success("Destino encontrado")
+                    else:
+                        st.error("Error en el API")
+                except Exception as e:
+                    st.error(f"{str(e)}")
+
+        # ESTADÍSTICAS 
+        st.markdown("---")
+        st.markdown("###  Estadísticas")
+
+        #  DESTINO MÁS CERCANO 
         if st.session_state.destino_cercano_mapa:
             dest = st.session_state.destino_cercano_mapa
 
@@ -444,14 +439,13 @@ def render_mapa_google_page():
             st.metric("Score", f"{dest['score']:.2f}/5")
             st.metric("Distancia", f"{dest['distancia_km']} km")
 
-            st.markdown("---")
-            st.markdown("### Ubicación")
+            st.markdown("**Ubicación:**")
             st.markdown(f"""
-            **Provincia:** {dest.get('provincia', 'N/A')}  
-            **Cantón:** {dest.get('canton', 'N/A')}
+             {dest.get('provincia', 'N/A')}  
+             {dest.get('canton', 'N/A')}
             """)
 
-        # ========= CASO 2: RECOMENDACIONES =========
+        # RECOMENDACIONES 
         elif st.session_state.recomendaciones_mapa:
             st.metric("Destinos", len(st.session_state.recomendaciones_mapa))
 
@@ -465,23 +459,22 @@ def render_mapa_google_page():
                 st.metric("Promedio", f"{promedio:.2f}/5")
                 st.metric("Mejor", f"{max(scores):.2f}/5")
 
-        # ========= SIN DATOS =========
         else:
-            st.info("Usa el menú lateral para buscar destinos.")
+            st.info("Selecciona un modo de búsqueda para comenzar.")
 
         st.markdown("---")
 
-        # ========= BOTONES =========
-        if st.button("Limpiar resultados", use_container_width=True):
+
+        if st.button(" Limpiar resultados", use_container_width=True):
             st.session_state.recomendaciones_mapa = []
             st.session_state.destino_cercano_mapa = None
             st.rerun()
 
 
-    # ================= TABLA =================
+    # TABLA DE RESULTADOS 
     if st.session_state.recomendaciones_mapa:
         st.markdown("---")
-        st.subheader("Tabla de resultados")
+        st.subheader("📋 Tabla de resultados")
         
         df = pd.DataFrame(st.session_state.recomendaciones_mapa)
         
